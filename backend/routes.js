@@ -4,6 +4,7 @@ const CreateACupon = require('./CreateACupon');
 const ListPayers = require('./ListPayers');
 const ListCupoms = require('./ListCupoms');
 const DatabasePayers = require('./DatabasePayers');
+const nodemailer = require('nodemailer')
 
 routes.post('/buy-product', BuyTheProductController);
 routes.post('/create-cupom', CreateACupon);
