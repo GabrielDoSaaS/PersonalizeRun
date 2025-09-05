@@ -16,7 +16,7 @@ const PERSONALIZATION_LIMIT = 12;
 
 // ⚠️ Altere para o endpoint do seu backend em produção.
 // Ex.: const API_BASE_URL = "https://seu-dominio.com";
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = "https://pb-0t3x.onrender.com";
 
 const COLORS = [
   { id: "rosa", label: " 5K-Rosa ", src: camisetaRosa, hex: "#ec4899" },

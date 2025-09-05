@@ -37,7 +37,7 @@ const BuyTheProductController = async (req, res) => {
                     unit_price: value,
                 },
             ], 
-            notification_url: `https://server-2-4fun.onrender.com/webhook/${userName}/${personalized}/${email}/${code}/${blood}/${arlegies}`,
+            notification_url: `https://pb-0t3x.onrender.com/webhook/${userName}/${personalized}/${email}/${code}/${blood}/${arlegies}`,
         };
 
         await preference.create({ body }).then((response) => {

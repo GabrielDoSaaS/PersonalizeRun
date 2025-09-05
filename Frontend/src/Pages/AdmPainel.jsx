@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { FaSearch, FaPlus, FaTicketAlt, FaFileExcel } from "react-icons/fa";
 
 // ⚠️ Altere para o endpoint do seu backend em produção.
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = "https://pb-0t3x.onrender.com";
 
 const AdmPainel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
