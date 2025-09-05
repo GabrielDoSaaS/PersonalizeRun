@@ -30,15 +30,23 @@ const BuyTheProductController = async (req, res) => {
         const body = {
             items: [
                 {
-                    id: '1234',
-                    title: 'Camiseta Personalizada',
-                    quantity: 1,
-                    currency_id: 'BRL',
-                    unit_price: value,
+                id: '1234',
+                title: 'Camiseta Personalizada',
+                quantity: 1,
+                currency_id: 'BRL',
+                unit_price: value,
                 },
-            ], 
+            ],
             notification_url: `https://pb-0t3x.onrender.com/webhook/${userName}/${personalized}/${email}/${code}/${blood}/${arlegies}`,
-        };
+            payment_methods: {
+                excluded_payment_methods: [
+                {
+                    id: "bolbr" // Este é o ID para boleto bancário no Brasil
+                }
+                ],
+                installments: null // Opcional: remover parcelamento se desejar
+            }
+            };
 
         await preference.create({ body }).then((response) => {
             return res.send({ init_point: response.init_point });
