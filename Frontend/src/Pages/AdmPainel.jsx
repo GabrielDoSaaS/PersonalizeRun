@@ -55,7 +55,7 @@ const AdmPainel = () => {
     try {
       await axios.post(`${API_BASE_URL}/api/create-cupom`, {
         code: couponCode,
-        discount: parseFloat(couponDiscount),
+        porcent: parseFloat(couponDiscount),
       });
       alert("Cupom criado com sucesso!");
       setIsCouponModalOpen(false);

@@ -8,6 +8,7 @@ const CreateACupon = (req, res) => {
     newCupom.save()
         .then(() => res.status(201).json({ message: 'Cupom created successfully' }))
         .catch((error) => res.status(500).json({ error: 'Error creating cupom', details: error }));
+
 }
 
 module.exports = CreateACupon;
