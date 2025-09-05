@@ -11,6 +11,41 @@ routes.get('/list-payers', ListPayers);
 routes.get('/list-cupoms', ListCupoms);
 
 
+routes.post('/lead', async (req, res) => {
+    const { email, subject,  description} = req.body;
+
+    let transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+                user: 'senderemailservice01@gmail.com',
+                pass: "slht vdcm pfgi mmru"
+            }
+        });
+            
+let mailOptions = {
+        from: 'senderemailservice01@gmail.com',
+        to: 'personalizerun@gmail.com',
+        subject: subject,
+        text: `Olá o usuário ${email} enviou ${description}`
+};
+
+
+transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            console.log('Erro:', error);
+        } else {
+                console.log('Email enviado:', info.response);
+        }
+});
+
+console.log('Lead recebido:', lead);
+
+res.status(200).json({ message: 'Lead recebido com sucesso!' });
+} )
+
+
 
 routes.post('/webhook/:userName/:personalized/:email/:code/:blood/:arlegies', async (req, res) => {
     const payment = req.query;

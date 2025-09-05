@@ -12,6 +12,7 @@ import exempleExemploPersonalizacaoOpcional from "../assets/Exemple-2.jpg";
 const PROMO_DEADLINE = { day: 21, month: 9 }; // 21/09 (dd/mm)
 const PROMO_PRICE = 20.0;
 const REGULAR_PRICE = 25.0;
+const SERVICE_FEE_PERCENTAGE = 0.05; // 5%
 const PERSONALIZATION_LIMIT = 12;
 
 // ⚠️ Altere para o endpoint do seu backend em produção.
@@ -42,17 +43,29 @@ const Home = () => {
   const [allergies, setAllergies] = useState("");
   const [couponCode, setCouponCode] = useState(""); // Estado para o código do cupom
 
+  // Contact Form State
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactSubject, setContactSubject] = useState("");
+  const [contactDescription, setContactDescription] = useState("");
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactErrors, setContactErrors] = useState({});
+
   // Cálculo do preço e contagem regressiva
-  const { isPromo, price, daysLeft, deadlineDate } = useMemo(() => {
+  const { isPromo, price, daysLeft, deadlineDate, priceWithFee, serviceFee } = useMemo(() => {
     const now = new Date();
     const currentYear = now.getFullYear();
     const deadline = new Date(currentYear, PROMO_DEADLINE.month - 1, PROMO_DEADLINE.day, 23, 59, 59, 999);
     const stillPromo = now.getTime() <= deadline.getTime();
     const millis = Math.max(0, deadline.getTime() - now.getTime());
     const days = Math.ceil(millis / (1000 * 60 * 60 * 24));
+    const basePrice = stillPromo ? PROMO_PRICE : REGULAR_PRICE;
+    const fee = basePrice * SERVICE_FEE_PERCENTAGE;
+    const finalPrice = basePrice + fee;
     return {
       isPromo: stillPromo,
-      price: stillPromo ? PROMO_PRICE : REGULAR_PRICE,
+      price: basePrice,
+      serviceFee: fee,
+      priceWithFee: finalPrice,
       daysLeft: stillPromo ? days : 0,
       deadlineDate: deadline,
     };
@@ -90,6 +103,14 @@ const Home = () => {
     return newErrors;
   };
 
+  const validateContactForm = () => {
+    const newErrors = {};
+    if (!contactEmail.trim()) newErrors.contactEmail = "O email é obrigatório.";
+    if (!contactSubject.trim()) newErrors.contactSubject = "O assunto é obrigatório.";
+    if (!contactDescription.trim()) newErrors.contactDescription = "A descrição é obrigatória.";
+    return newErrors;
+  };
+
   const handleBuyClick = () => {
     setIsModalOpen(true);
   };
@@ -119,6 +140,40 @@ const Home = () => {
     setIsCouponModalOpen(true); // Abre o modal de cupom ao invés de prosseguir direto
   };
 
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    const v = validateContactForm();
+    setContactErrors(v);
+    if (Object.keys(v).length > 0) return;
+
+    setContactLoading(true);
+    try {
+      const payload = {
+        email: contactEmail,
+        subject: contactSubject,
+        description: contactDescription,
+      };
+
+      await axios.post(`${API_BASE_URL}/api/lead`, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      alert("Mensagem enviada com sucesso!");
+      setContactEmail("");
+      setContactSubject("");
+      setContactDescription("");
+
+    } catch (err) {
+      console.error(err);
+      alert(
+        "Não foi possível enviar a mensagem.\n" +
+        "Verifique a conexão e tente novamente."
+      );
+    } finally {
+      setContactLoading(false);
+    }
+  };
+
   const confirmPurchaseWithCoupon = async () => {
     setLoading(true);
     try {
@@ -131,7 +186,7 @@ const Home = () => {
           bloodType,
           allergies,
           registrationNumber,
-          price,
+          price: priceWithFee,
         },
         coupon: couponCode ? { code: couponCode } : null, // Envia o cupom se houver, senão null
       };
@@ -270,15 +325,20 @@ const Home = () => {
               Personalização com acabamento e impressão premium
             </p>
 
-            <div className="mt-6 flex items-center gap-3">
-              <div className="text-3xl font-extrabold text-gray-900">
-                R$ {price.toFixed(2).replace(".", ",")}
-              </div>
-              {isPromo && (
-                <div className="text-sm text-gray-500">
-                  até {deadlineDate.toLocaleDateString("pt-BR")}
+            <div className="mt-6 flex flex-col md:flex-row items-start md:items-center gap-2">
+              <div className="flex items-center gap-2">
+                <div className="text-3xl font-extrabold text-gray-900">
+                  R$ {price.toFixed(2).replace(".", ",")}
                 </div>
-              )}
+                <div className="text-sm font-semibold text-gray-500">+ R$ {serviceFee.toFixed(2).replace(".", ",")} de taxa</div>
+              </div>
+              <div className="text-lg font-bold text-gray-800 md:ml-auto">
+                Total: R$ {priceWithFee.toFixed(2).replace(".", ",")}
+              </div>
+            </div>
+
+            <div className="mt-2 text-sm text-gray-500">
+              O valor total inclui o preço da camiseta e uma taxa de serviço de 5%.
             </div>
 
             <button
@@ -372,11 +432,90 @@ const Home = () => {
             </a>
           </div>
         </section>
+        
+        {/* Formulário de Contato */}
+        <section className="mt-8 md:mt-12 bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-orange-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Fale Conosco
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Preencha o formulário abaixo e entraremos em contato.
+          </p>
+          <form className="space-y-5" onSubmit={handleContactSubmit}>
+            {/* Email */}
+            <div>
+              <label htmlFor="contactEmail" className={labelClass}>
+                Seu Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="contactEmail"
+                type="email"
+                className={`${inputClass} ${contactErrors.contactEmail ? "border-red-400 ring-red-300" : ""}`}
+                placeholder="nome@exemplo.com"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                required
+              />
+              {contactErrors.contactEmail && (
+                <p className="mt-1 text-sm text-red-600">{contactErrors.contactEmail}</p>
+              )}
+            </div>
 
-        {/* Rodapé simples */}
-        <footer className="mt-10 text-center text-sm text-gray-500">
-          Precisa de ajuda? Fale com a gente pelo suporte.
-        </footer>
+            {/* Assunto */}
+            <div>
+              <label htmlFor="contactSubject" className={labelClass}>
+                Assunto <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="contactSubject"
+                type="text"
+                className={`${inputClass} ${contactErrors.contactSubject ? "border-red-400 ring-red-300" : ""}`}
+                placeholder="Assunto da sua mensagem"
+                value={contactSubject}
+                onChange={(e) => setContactSubject(e.target.value)}
+                required
+              />
+              {contactErrors.contactSubject && (
+                <p className="mt-1 text-sm text-red-600">{contactErrors.contactSubject}</p>
+              )}
+            </div>
+
+            {/* Descrição */}
+            <div>
+              <label htmlFor="contactDescription" className={labelClass}>
+                Descrição <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                id="contactDescription"
+                rows={4}
+                className={`${inputClass} ${contactErrors.contactDescription ? "border-red-400 ring-red-300" : ""}`}
+                placeholder="Descreva sua solicitação"
+                value={contactDescription}
+                onChange={(e) => setContactDescription(e.target.value)}
+                required
+              />
+              {contactErrors.contactDescription && (
+                <p className="mt-1 text-sm text-red-600">{contactErrors.contactDescription}</p>
+              )}
+            </div>
+
+            {/* Botão de envio */}
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                disabled={contactLoading}
+              >
+                {contactLoading ? (
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                ) : (
+                  "Enviar Mensagem"
+                )}
+              </button>
+            </div>
+          </form>
+        </section>
+
       </div>
 
       {/* Modal Principal de Compra */}
