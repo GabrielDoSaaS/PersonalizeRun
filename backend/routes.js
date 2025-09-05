@@ -17,10 +17,10 @@ routes.post('/lead', async (req, res) => {
 
     let transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
+        port: 465,
+        secure: true,
         auth: {
-                user: 'senderemailservice01@gmail.com',
+                user: 'sendermailservice01@gmail.com',
                 pass: "slht vdcm pfgi mmru"
             }
         });
