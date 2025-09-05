@@ -22,7 +22,7 @@ routes.post('/webhook/:userName/:personalized/:email/:code/:blood/:arlegies', as
         const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
             method: "GET",
             headers: {
-                "Authorization": "Bearer APP_USR-1767806761428068-070620-771a230aa8ff67512387deefe1bd14ef-192552961"
+                "Authorization": "Bearer APP_USR-8236944029478650-083009-a7d3d34f12c17b040f58853cb2f6dc9c-2655607003"
             }
         })
 

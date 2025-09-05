@@ -23,7 +23,7 @@ const BuyTheProductController = async (req, res) => {
         const porcent = cupomFound ? cupomFound.porcent : 0;
 
         const value = 21 - (21 * porcent / 100);
-        const client = new MercadoPagoConfig({ accessToken: 'TEST-8001012963880387-060323-cdb26a9b2c52877f4a0ae4bc256d8912-1840600103' });
+        const client = new MercadoPagoConfig({ accessToken: 'APP_USR-8236944029478650-083009-a7d3d34f12c17b040f58853cb2f6dc9c-2655607003' });
 
         const preference = new Preference(client);
 
