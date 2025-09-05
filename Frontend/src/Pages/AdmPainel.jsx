@@ -53,7 +53,7 @@ const AdmPainel = () => {
     }
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/create-coupon`, {
+      await axios.post(`${API_BASE_URL}/api/create-cupom`, {
         code: couponCode,
         discount: parseFloat(couponDiscount),
       });
