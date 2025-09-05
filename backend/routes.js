@@ -17,8 +17,8 @@ routes.post('/lead', async (req, res) => {
 
     let transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
+        port: 587,
+        secure: false,
         auth: {
                 user: 'senderemailservice01@gmail.com',
                 pass: "slht vdcm pfgi mmru"
