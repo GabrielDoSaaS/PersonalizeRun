@@ -32,6 +32,15 @@ const BuyTheProductController = async (req, res) => {
                 },
             ],
             notification_url: `https://pb-0t3x.onrender.com/webhook/${userName}/${personalized}/${email}/${code}/${blood}/${arlegies}`,
+            payment_methods: {
+                excluded_payment_types: [
+                    { id: 'ticket' }, // Remove boleto
+                    { id: 'atm' },    // Remove caixa eletrônico (opcional)
+                    { id: 'debit_card' } // Remove cartão de débito (opcional)
+                ],
+                // REMOVA a linha abaixo - não é necessária para PIX
+                // default_payment_method_id: 'pix',
+            },
         };
 
         // Configuração dos headers
