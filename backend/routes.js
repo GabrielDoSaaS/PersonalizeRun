@@ -41,7 +41,7 @@ transporter.sendMail(mailOptions, function(error, info){
         }
 });
 
-console.log('Lead recebido:', lead);
+console.log('Lead recebido:');
 
 res.status(200).json({ message: 'Lead recebido com sucesso!' });
 } )
