@@ -28,25 +28,30 @@ const BuyTheProductController = async (req, res) => {
         const preference = new Preference(client);
 
         const body = {
-            items: [
-                {
-                    id: '1234',
-                    title: 'Camiseta Personalizada',
-                    quantity: 1,
-                    currency_id: 'BRL',
-                    unit_price: value,
-                },
-            ],
-            notification_url: `https://pb-0t3x.onrender.com/webhook/${userName}/${personalized}/${email}/${code}/${blood}/${arlegies}`,
-            payment_methods: {
-                excluded_payment_types: [
-                    { id: 'credit_card' },
-                    { id: 'debit_card' },
-                    { id: 'ticket' },
-                    { id: 'bank_transfer' }
-                ]
-            }
-        };
+    items: [
+        {
+            id: '1234',
+            title: 'Camiseta Personalizada',
+            quantity: 1,
+            currency_id: 'BRL',
+            unit_price: value,
+        },
+    ],
+    notification_url: `https://pb-0t3x.onrender.com/webhook/${userName}/${personalized}/${email}/${code}/${blood}/${arlegies}`,
+    payment_methods: {
+        excluded_payment_types: [ // Aqui você pode excluir cartões, etc
+            { id: 'credit_card' },
+            { id: 'ticket' },
+            { id: 'atm' },
+            { id: 'debit_card' },
+            { id: 'account_money' }
+        ],
+        excluded_payment_methods: [], // pode deixar vazio se quiser só PIX
+        installments: 1, // número de parcelas
+        default_payment_method_id: 'pix' // força PIX como método padrão
+    }
+};
+
 
         await preference.create({ body }).then((response) => {
             return res.send({ init_point: response.init_point });
