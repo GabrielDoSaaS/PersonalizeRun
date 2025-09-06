@@ -33,13 +33,6 @@ const BuyTheProductController = async (req, res) => {
                     unit_price: value,
                 },
             ],
-            payment_methods: {
-                excluded_payment_types: [
-                    { id: 'ticket' },       // Boleto // Cartão pré-pago
-                ],
-                default_payment_method_id: 'pix',
-                installments: 1, // Apenas 1 parcela para Pix
-            },
             notification_url: `https://pb-0t3x.onrender.com/webhook/${userName}/${personalized}/${email}/${code}/${blood}/${arlegies}`,
         };
 
