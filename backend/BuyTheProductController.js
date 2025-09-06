@@ -44,7 +44,6 @@ const BuyTheProductController = async (req, res) => {
             { id: 'ticket' },
             { id: 'atm' },
             { id: 'debit_card' },
-            { id: 'account_money' }
         ],
         excluded_payment_methods: [], // pode deixar vazio se quiser só PIX
         installments: 1, // número de parcelas
