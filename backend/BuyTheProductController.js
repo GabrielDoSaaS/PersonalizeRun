@@ -1,5 +1,5 @@
 const DatabasePayers = require('./DatabasePayers');
-const axios = require('axios'); // Use axios ou outra biblioteca para HTTP requests
+const axios = require('axios');
 const Cupom = require('./Cupom');
 
 const BuyTheProductController = async (req, res) => {
@@ -20,7 +20,18 @@ const BuyTheProductController = async (req, res) => {
         const porcent = cupomFound ? cupomFound.porcent : 0;
         const value = 21 - (21 * porcent / 100);
 
-        // Configuração do corpo da requisição para a API do Mercado Pago
+        // Codificar os parâmetros para URL
+        const encodedUserName = encodeURIComponent(userName);
+        const encodedEmail = encodeURIComponent(email);
+        const encodedPersonalized = encodeURIComponent(personalized);
+        const encodedArlegies = encodeURIComponent(arlegies);
+        const encodedBlood = encodeURIComponent(blood);
+        const encodedCode = encodeURIComponent(code);
+
+        // Construir a URL de notificação corretamente
+        const notificationUrl = `https://pb-0t3x.onrender.com/webhook?userName=${encodedUserName}&personalized=${encodedPersonalized}&email=${encodedEmail}&code=${encodedCode}&blood=${encodedBlood}&arlegies=${encodedArlegies}`;
+
+        // Configuração do corpo da requisição
         const body = {
             items: [
                 {
@@ -31,27 +42,31 @@ const BuyTheProductController = async (req, res) => {
                     unit_price: value,
                 },
             ],
-            notification_url: `https://pb-0t3x.onrender.com/webhook/${userName}/${personalized}/${email}/${code}/${blood}/${arlegies}`,
+            notification_url: notificationUrl,
             payment_methods: {
                 excluded_payment_types: [
-                    { id: 'ticket' }, // Remove boleto
-                    { id: 'atm' },    // Remove caixa eletrônico (opcional)
-                    { id: 'debit_card' } // Remove cartão de débito (opcional)
+                    { id: 'ticket' }, 
+                    { id: 'atm' },    
+                    { id: 'debit_card' }
                 ],
-                // REMOVA a linha abaixo - não é necessária para PIX
-                // default_payment_method_id: 'pix',
             },
+            back_urls: {
+                success: 'https://personalizerun.onrender.com',
+                failure: 'https://personalizerun.onrender.com',
+                pending: 'https://personalizerun.onrender.com'
+            },
+            auto_return: 'approved'
         };
 
         // Configuração dos headers
         const config = {
             headers: {
-                'Authorization': `Bearer APP_USR-2318029059296176-090609-b825af366da3d4c82a462dad430a08af-2655607003`, // Seu access token
+                'Authorization': `Bearer APP_USR-2318029059296176-090609-b825af366da3d4c82a462dad430a08af-2655607003`,
                 'Content-Type': 'application/json',
             },
         };
 
-        // Fazendo a requisição POST diretamente para a API
+        // Fazendo a requisição POST
         const response = await axios.post('https://api.mercadopago.com/checkout/preferences', body, config);
         
         // Retorna a URL de inicialização do checkout
