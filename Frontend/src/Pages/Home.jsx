@@ -13,7 +13,7 @@ const PROMO_DEADLINE = { day: 21, month: 9 }; // 21/09 (dd/mm)
 const PROMO_PRICE = 20.0;
 const REGULAR_PRICE = 25.0;
 const SERVICE_FEE_PERCENTAGE = 0.05; // 5%
-const PERSONALIZATION_LIMIT = 12;
+const PERSONALIZATION_LIMIT = 13;
 
 // ⚠️ Altere para o endpoint do seu backend em produção.
 // Ex.: const API_BASE_URL = "https://seu-dominio.com";
@@ -338,7 +338,7 @@ const Home = () => {
             </div>
 
             <div className="mt-2 text-sm text-gray-500">
-              O valor total inclui o preço da camiseta e uma taxa de serviço de 5%.
+              O valor total inclui a personalização e uma taxa de serviço de 5%.
             </div>
 
             <button
@@ -589,7 +589,7 @@ const Home = () => {
                 {/* Personalização */}
                 <div>
                   <label htmlFor="personalization" className={labelClass}>
-                    Texto da personalização (Até {PERSONALIZATION_LIMIT} caracteres e 1 espaço)
+                    Texto da personalização (Até 12 caracteres e 1 espaço)
                   </label>
                   <input
                     id="personalization"
