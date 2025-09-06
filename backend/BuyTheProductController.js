@@ -35,12 +35,7 @@ const BuyTheProductController = async (req, res) => {
             ],
             payment_methods: {
                 excluded_payment_types: [
-                    { id: 'ticket' },       // Boleto
-                    { id: 'bank_transfer' }, // Transferência bancária
-                    { id: 'atm' },          // Caixa eletrônico
-                    { id: 'credit_card' },  // Cartão de crédito
-                    { id: 'debit_card' },   // Cartão de débito
-                    { id: 'prepaid_card' }  // Cartão pré-pago
+                    { id: 'ticket' },       // Boleto // Cartão pré-pago
                 ],
                 default_payment_method_id: 'pix',
                 installments: 1, // Apenas 1 parcela para Pix
