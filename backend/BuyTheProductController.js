@@ -31,7 +31,7 @@ const BuyTheProductController = async (req, res) => {
         // Construir a URL de notificação corretamente
         const notificationUrl = `https://pb-0t3x.onrender.com/webhook?userName=${encodedUserName}&personalized=${encodedPersonalized}&email=${encodedEmail}&code=${encodedCode}&blood=${encodedBlood}&arlegies=${encodedArlegies}`;
 
-        // Configuração do corpo da requisição
+        // Configuração do corpo da requisição (VERSÃO EXPLÍCITA)
         const body = {
             items: [
                 {
@@ -45,9 +45,12 @@ const BuyTheProductController = async (req, res) => {
             notification_url: notificationUrl,
             payment_methods: {
                 excluded_payment_types: [
-                    { id: 'ticket' }, 
-                    { id: 'atm' },    
-                    { id: 'debit_card' }
+                    { id: 'ticket' } // Exclui apenas boleto
+                ],
+                included_payment_types: [
+                    { id: 'pix' },           // Garante que PIX está incluído
+                    { id: 'credit_card' },   // Garante que cartão de crédito está incluído
+                    { id: 'debit_card' }     // Garante que cartão de débito está incluído
                 ],
             },
             back_urls: {
