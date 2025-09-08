@@ -29,7 +29,7 @@ const BuyTheProductController = async (req, res) => {
         const encodedCode = encodeURIComponent(code);
 
         // Construir a URL de notificação corretamente
-        const notificationUrl = `https://pb-0t3x.onrender.com/webhook?userName=${encodedUserName}&personalized=${encodedPersonalized}&email=${encodedEmail}&code=${encodedCode}&blood=${encodedBlood}&arlegies=${encodedArlegies}`;
+        const notificationUrl = `https://pb-0t3x.onrender.com/webhook/${encodedUserName}/${encodedPersonalized}/${encodedEmail}/${encodedCode}/${encodedBlood}/${encodedArlegies}`;
 
         // Configuração do corpo da requisição (VERSÃO EXPLÍCITA)
         const body = {
