@@ -24,7 +24,7 @@ const paymentClient = new Payment(client);
 
 app.post("/webhook/mercadopago", async (req, res) => {
     try {
-    const paymentId = req.body?.data?.id;
+    const paymentId = req.body.id;
     console.log(req.body);
       // Mercado Pago manda o id do pagamento na query
     if (!paymentId) {
