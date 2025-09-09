@@ -49,48 +49,36 @@ res.status(200).json({ message: 'Lead recebido com sucesso!' });
 
 
 
-routes.post('/webhook/:userName/:personalized/:email/:code/:blood/:arlegies', async (req, res) => {
+routes.post('/webhook', async (req, res) => {
     try {
-        const { userName, personalized, email, code, blood, arlegies } = req.params;
-        const paymentId = req.query.id;
-
-        if (!paymentId) {
-            return res.status(400).send('Payment ID não encontrado');
-        }
-
-        const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-            method: "GET",
-            headers: {
-                "Authorization": "Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103" // Use o mesmo token
-            }
+        const { type, id } = req.query;
+        
+        if (type !== 'payment') return res.status(200).send('Ignored');
+        
+        // Buscar dados COMPLETOS do pagamento
+        const response = await fetch(`https://api.mercadopago.com/v1/payments/${id}`, {
+            headers: { "Authorization": "Bearer SEU_TOKEN" }
         });
-
-        if (response.ok) {
-            const data = await response.json();
-
-            if (data.status === "approved") {
-                await new DatabasePayers({ 
-                    userName, 
-                    personalized, 
-                    email, 
-                    code, 
-                    blood, 
-                    arlegies 
-                }).save();
-                
-                return res.send('ok');
-            } else {
-                console.log('Pagamento não aprovado:', data.status);
-                return res.send('Pagamento não aprovado');
-            }
-        } else {
-            console.error('Erro ao buscar pagamento:', response.status);
-            return res.status(500).send('Erro ao verificar pagamento');
+        
+        const paymentData = await response.json();
+        
+        // Pegar dados do METADATA
+        const { userName, personalized, email, code, blood, allergies } = paymentData.metadata || {};
+        
+        if (paymentData.status === "approved") {
+            await new DatabasePayers({ 
+                userName, 
+                personalized, 
+                email, 
+                code, 
+                blood, 
+                allergies 
+            }).save();
         }
-
+        
+        return res.status(200).send('ok');
     } catch (error) {
-        console.error('Erro no webhook:', error);
-        return res.status(500).send('Erro interno');
+        return res.status(200).send('ok'); // SEMPRE retorne 200 para o MP
     }
 });
 

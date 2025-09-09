@@ -64,7 +64,7 @@ const BuyTheProductController = async (req, res) => {
         // Configuração dos headers
         const config = {
             headers: {
-                'Authorization': `Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103 `,
+                'Authorization': `Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103`,
                 'Content-Type': 'application/json',
             },
         };
