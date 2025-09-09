@@ -32,11 +32,9 @@ app.post("/webhook/mercadopago", async (req, res) => {
     if (data.type === "payment") {
       const paymentId = data.data.id;
 
-      // Aqui você deve consultar a API do Mercado Pago para confirmar os dados
-      // Exemplo: buscar detalhes do pagamento
        const payment = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
         headers: { Authorization: `Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103` }
-      }).then(response => response.data)
+      }).then(response => console.log(response.data))
         .catch(error => {
             console.error("Erro ao buscar pagamento:", error);
             return null;
