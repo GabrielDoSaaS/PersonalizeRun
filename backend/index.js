@@ -4,6 +4,7 @@ const routes = require('./routes');
 const connectToDb = require('./ConnectToDb');
 const mercadopago = require('mercadopago');
 const DatabasePayers = require('./DatabasePayers');
+const axios = require('axios');
 const app = express();
 const PORT = 3000;
 
