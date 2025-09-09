@@ -21,55 +21,42 @@ const client = new MercadoPagoConfig({
 // Crie a instância do Payment
 const paymentClient = new Payment(client);
 
-app.post("/webhook/mercadopago", async (req, res) => {
-  try {
-    const { type, data } = req.body;
-    console.log("Webhook recebido:", { type, data });
+routes.post('/webhook/mercadopago', async (req, res) => {
+    const payment = req.query;
 
-    if (type === "payment") {
-      const paymentId = data.id;
-      
-      // FORMA CORRETA - usando a instância do Payment
-      const payment = await paymentClient.get({ id: paymentId });
-      
-      console.log(`Status do pagamento ${paymentId}: ${payment.status}`);
+    console.log({payment});
+    const paymentId = payment.id;
 
-      if (payment.status === "approved") {
-        console.log("✅ PAGAMENTO APROVADO!");
+    try {
+        const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103"
+            }
+        })
 
-        const metadata = payment.metadata  ;
+        if(response.ok) {
 
-        await DatabasePayers.create({
-          userName: metadata.userName,
-          personalized: metadata.personalized,
-          email: metadata.email,
-          code: metadata.code,
-          blood: metadata.blood,
-          arlegies: metadata.allergies
-        });
+            const data = await response.json();
 
-        
-        // Suas ações aqui
-        await handleApprovedPayment(payment);
-        
-        return res.status(200).json({ 
-          message: "Pagamento aprovado processado",
-          payment_id: paymentId
-        });
-      }
+            if(data.status == "approved") {
+                const metadata = response.metadata;
+                console.log({metadata});
+                const userName = metadata.userName;
+                const personalized = metadata.personalized;
+                const email = metadata.email;
+                const code = metadata.code;
+                const blood = metadata.blood;
+                const allergies = metadata.allergies;
+            }
+                
+             return res.sendStatus(200);
+                
+        }
+    } catch {
+        res.sendStatus(500);
     }
-
-    res.sendStatus(200);
-  } catch (error) {
-    console.error("Erro no webhook:", error);
-    res.status(500).json({ error: "Erro interno do servidor" });
-  }
 });
-
-async function handleApprovedPayment(payment) {
-  console.log("🎯 Processando pagamento aprovado:", payment.id);
-  // Sua lógica de negócio aqui
-}
 
 connectToDb();
 
