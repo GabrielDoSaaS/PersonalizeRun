@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const routes = require('./routes');
 const connectToDb = require('./ConnectToDb');
+const axios = require('axios');
 
 const app = express();
 const PORT = 3000;
