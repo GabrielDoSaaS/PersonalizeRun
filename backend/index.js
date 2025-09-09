@@ -22,7 +22,7 @@ app.post("/webhook/mercadopago", async (req, res) => {
       const paymentId = data.id;
       
       // FORMA CORRETA de buscar pagamento na SDK atualizada
-      const payment = await mercadopago.payment.get(paymentId);
+      const payment = await mercadopago.Payment.get(paymentId);
       
       console.log(`Status do pagamento ${paymentId}: ${payment.response.status}`);
 
