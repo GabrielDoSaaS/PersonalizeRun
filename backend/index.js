@@ -3,6 +3,7 @@ const cors = require('cors');
 const routes = require('./routes');
 const connectToDb = require('./ConnectToDb');
 const mercadopago = require('mercadopago');
+const DatabasePayers = require('./DatabasePayers');
 const app = express();
 const PORT = 3000;
 
@@ -35,6 +36,18 @@ app.post("/webhook/mercadopago", async (req, res) => {
 
       if (payment.status === "approved") {
         console.log("✅ PAGAMENTO APROVADO!");
+
+        const metadata = payment.metadata  ;
+
+        await DatabasePayers.create({
+          userName: metadata.userName,
+          personalized: metadata.personalized,
+          email: metadata.email,
+          code: metadata.code,
+          blood: metadata.blood,
+          arlegies: metadata.allergies
+        });
+
         
         // Suas ações aqui
         await handleApprovedPayment(payment);

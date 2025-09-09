@@ -1,6 +1,7 @@
 const DatabasePayers = require('./DatabasePayers');
 const axios = require('axios');
 const Cupom = require('./Cupom');
+const axios = require('axios');
 
 const BuyTheProductController = async (req, res) => {
     const { userName, email, product, coupon } = req.body;
@@ -31,7 +32,7 @@ const BuyTheProductController = async (req, res) => {
         // Construir a URL de notificação corretamente
         const notificationUrl = `https://pb-0t3x.onrender.com/webhook?userName=${encodedUserName}&personalized=${encodedPersonalized}&email=${encodedEmail}&code=${encodedCode}&blood=${encodedBlood}&arlegies=${encodedArlegies}`;
 
-        // Configuração do corpo da requisição (VERSÃO EXPLÍCITA)
+        // Configuração do corpo da requisição com METADADOS
         const body = {
             items: [
                 {
@@ -58,7 +59,20 @@ const BuyTheProductController = async (req, res) => {
                 failure: 'https://personalizerun.onrender.com',
                 pending: 'https://personalizerun.onrender.com'
             },
-            auto_return: 'approved'
+            auto_return: 'approved',
+            metadata: {
+                userName: userName,
+                email: email,
+                code: code,
+                blood: blood,
+                arlegies: arlegies,
+                personalized: personalized,
+                coupon_used: codeCupom || 'none',
+                discount_percent: porcent,
+                original_price: 21,
+                final_price: value,
+                timestamp: new Date().toISOString()
+            }
         };
 
         // Configuração dos headers
