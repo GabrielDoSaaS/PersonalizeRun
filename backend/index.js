@@ -36,7 +36,7 @@ app.post("/webhook/mercadopago", async (req, res) => {
     const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
       method: "GET",
       headers: {
-        "Authorization": `Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103` 
+        "Authorization": `Bearer APP_USR-2318029059296176-090609-b825af366da3d4c82a462dad430a08af-2655607003` 
       }
     });
 
