@@ -21,7 +21,32 @@ const client = new MercadoPagoConfig({
 // Crie a instância do Payment
 const paymentClient = new Payment(client);
 
-routes.post('/webhook/mercadopago', async (req, res) => {
+app.post("/webhook/mercadopago", async (req, res) => {
+  try {
+    const data = req.body;
+
+    console.log("Webhook recebido:", data);
+
+    // O Mercado Pago envia notificações de diferentes tipos
+    if (data.type === "payment") {
+      const paymentId = data.data.id;
+
+      // Aqui você deve consultar a API do Mercado Pago para confirmar os dados
+      // Exemplo: buscar detalhes do pagamento
+      // const payment = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      //   headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` }
+      // });
+
+      console.log(`Pagamento recebido. ID: ${paymentId}`);
+    }
+
+    // Resposta obrigatória: status 200
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Erro no webhook:", error);
+    res.sendStatus(500);
+  }
+});
     const payment = req.query;
 
     console.log({payment});
