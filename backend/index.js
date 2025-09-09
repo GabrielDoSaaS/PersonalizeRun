@@ -23,27 +23,35 @@ const client = new MercadoPagoConfig({
 const paymentClient = new Payment(client);
 
 app.post("/webhook/mercadopago", async (req, res) => {
-    const payment = req.query;
-    const paymentId = payment.id;
-    try {
-    const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-        method: "GET",
-        headers: {
-            "Authorization": "Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103"
-        }
-    });
+    const data = req.body;
 
-    if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        if (data.status === "approved") {
-            return res.sendStatus(200); // Pagamento aprovado
+    
+    try {
+
+    if (data.type === "payment") {
+        const paymentId = data.data.id;
+        const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103"
+            }
+        })
+        
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            if (data.status === "approved") {
+                return res.sendStatus(200); // Pagamento aprovado
+            } else {
+                return res.sendStatus(400); // Pagamento não aprovado
+            }
         } else {
-            return res.sendStatus(400); // Pagamento não aprovado
+            return res.sendStatus(502); // Erro na requisição ao Mercado Pago
         }
-    } else {
-        return res.sendStatus(502); // Erro na requisição ao Mercado Pago
     }
+
+    
 } catch (error) {
     console.error(error);
     return res.sendStatus(500); // Erro interno
