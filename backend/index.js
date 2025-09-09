@@ -11,31 +11,30 @@ app.use(cors());
 app.use(express.json());
 app.use('/api', routes);
 
-const mp = new MercadoPagoConfig('APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103');
+const mp = new MercadoPagoConfig({accessToken: 'APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103'});
 
 app.post("/webhook/mercadopago", async (req, res) => {
   try {
     const { type, data } = req.body;
+    console.log("Webhook recebido:", { type, data });
 
     if (type === "payment") {
       const paymentId = data.id;
       
-      // Buscar detalhes do pagamento
-      const paymentInfo = await mp.payment.findById(paymentId);
-      const payment = paymentInfo.body;
+      // FORMA CORRETA de buscar pagamento na SDK atualizada
+      const payment = await mercadopago.payment.get(paymentId);
+      
+      console.log(`Status do pagamento ${paymentId}: ${payment.response.status}`);
 
-      if (payment.status === "approved") {
-        // SUA AÇÃO AQUI - Exemplos:
-        console.log("✅ Pagamento aprovado! Executando ações...");
+      if (payment.response.status === "approved") {
+        console.log("✅ PAGAMENTO APROVADO!");
         
-        // 1. Atualizar banco de dados
-        // 2. Enviar email
-        // 3. Liberar produto
-        // 4. Registrar log
+        // Suas ações aqui
+        await handleApprovedPayment(payment.response);
         
         return res.status(200).json({ 
-          status: "success", 
-          message: "Pagamento aprovado processado" 
+          message: "Pagamento aprovado processado",
+          payment_id: paymentId
         });
       }
     }
@@ -43,10 +42,14 @@ app.post("/webhook/mercadopago", async (req, res) => {
     res.sendStatus(200);
   } catch (error) {
     console.error("Erro no webhook:", error);
-    res.status(500).json({ error: "Erro interno" });
+    res.status(500).json({ error: "Erro interno do servidor" });
   }
 });
 
+async function handleApprovedPayment(payment) {
+  console.log("🎯 Processando pagamento aprovado:", payment.id);
+  // Sua lógica de negócio aqui
+}
 connectToDb();
 
 app.listen(PORT, () => {
