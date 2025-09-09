@@ -23,39 +23,41 @@ const client = new MercadoPagoConfig({
 const paymentClient = new Payment(client);
 
 app.post("/webhook/mercadopago", async (req, res) => {
-    const data = req.body;
-
-    
     try {
-
-    if (data.type === "payment") {
-        const paymentId = data.data.id;
-        const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-            method: "GET",
-            headers: {
-                "Authorization": "Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103"
-            }
-        })
-        
-
-        if (response.ok) {
-            const data = await response.json();
-            console.log(data);
-            if (data.status === "approved") {
-                return res.sendStatus(200); // Pagamento aprovado
-            } else {
-                return res.sendStatus(400); // Pagamento não aprovado
-            }
-        } else {
-            return res.sendStatus(502); // Erro na requisição ao Mercado Pago
-        }
+    const { id: paymentId } = req.query; // Mercado Pago manda o id do pagamento na query
+    if (!paymentId) {
+      return res.status(400).json({ error: "paymentId não informado" });
     }
 
-    
-} catch (error) {
-    console.error(error);
-    return res.sendStatus(500); // Erro interno
-}
+    // Consulta o pagamento na API do Mercado Pago
+    const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103` // coloque no .env
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(500).json({ error: "Falha ao consultar pagamento" });
+    }
+
+    const data = await response.json();
+
+    // Valida status
+    if (data.status === "approved") {
+      console.log("Pagamento aprovado:", data.id);
+      // aqui poderia salvar no banco, enviar email, etc...
+    } else {
+      console.log("Pagamento não aprovado:", data.status);
+    }
+
+    // Sempre responda 200 para o Mercado Pago não reenviar a notificação
+    return res.sendStatus(200);
+
+  } catch (err) {
+    console.error("Erro no webhook:", err);
+    return res.sendStatus(500);
+  }
 
 
 });
