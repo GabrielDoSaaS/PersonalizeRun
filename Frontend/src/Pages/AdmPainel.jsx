@@ -86,7 +86,7 @@ const AdmPainel = () => {
           `"${payer.code}"`,
           `"${payer.personalized || "Nenhuma"}"`,
           `"${payer.blood || "Nenhuma"}"`,
-          `"${payer.allergies || "Nenhuma"}"`,
+          `"${payer.arlegies || "Nenhuma"}"`,
         ].join(delimiter)
       )
       .join("\r\n");
@@ -189,8 +189,8 @@ const AdmPainel = () => {
             onClick={() => setIsCouponModalOpen(true)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition-transform duration-200 hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
           >
-            <FaPlus />
-            Criar Cupom
+           <FaPlus />
+                Criar Cupom
           </button>
         </header>
 
@@ -254,7 +254,7 @@ const AdmPainel = () => {
                         {payer.blood || "N/A"}
                       </td>
                       <td className="py-4 px-5 text-gray-600 hidden lg:table-cell">
-                        {payer.allergies || "N/A"}
+                        {payer.arlegies || "N/A"}
                       </td>
                     </tr>
                   ))}
