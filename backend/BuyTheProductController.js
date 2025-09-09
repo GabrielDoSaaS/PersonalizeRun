@@ -29,7 +29,7 @@ const BuyTheProductController = async (req, res) => {
         const encodedCode = encodeURIComponent(code);
 
         // Construir a URL de notificação corretamente
-        const notificationUrl = `https://pb-0t3x.onrender.com/webhook/${encodedUserName}/${encodedPersonalized}/${encodedEmail}/${encodedCode}/${encodedBlood}/${encodedArlegies}`;
+        const notificationUrl = `https://pb-0t3x.onrender.com/webhook?userName=${encodedUserName}&personalized=${encodedPersonalized}&email=${encodedEmail}&code=${encodedCode}&blood=${encodedBlood}&arlegies=${encodedArlegies}`;
 
         // Configuração do corpo da requisição (VERSÃO EXPLÍCITA)
         const body = {
@@ -64,7 +64,7 @@ const BuyTheProductController = async (req, res) => {
         // Configuração dos headers
         const config = {
             headers: {
-                'Authorization': `Bearer APP_USR-2318029059296176-090609-b825af366da3d4c82a462dad430a08af-2655607003`,
+                'Authorization': `Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103 `,
                 'Content-Type': 'application/json',
             },
         };

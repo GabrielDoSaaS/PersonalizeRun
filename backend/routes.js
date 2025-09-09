@@ -48,36 +48,50 @@ res.status(200).json({ message: 'Lead recebido com sucesso!' });
 
 
 
+
 routes.post('/webhook/:userName/:personalized/:email/:code/:blood/:arlegies', async (req, res) => {
-    const payment = req.query;
-    const p = req.body;
-    console.log({payment});
-    const paymentId = payment.id;
-    const {} = req.params;
+    try {
+        const { userName, personalized, email, code, blood, arlegies } = req.params;
+        const paymentId = req.query.id;
+
+        if (!paymentId) {
+            return res.status(400).send('Payment ID não encontrado');
+        }
 
         const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
             method: "GET",
             headers: {
-                "Authorization": "Bearer APP_USR-8236944029478650-083009-a7d3d34f12c17b040f58853cb2f6dc9c-2655607003"
+                "Authorization": "Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103" // Use o mesmo token
             }
-        })
+        });
 
-        if(response.ok) {
-
+        if (response.ok) {
             const data = await response.json();
 
-            if(data.status == "approved") {
+            if (data.status === "approved") {
+                await new DatabasePayers({ 
+                    userName, 
+                    personalized, 
+                    email, 
+                    code, 
+                    blood, 
+                    arlegies 
+                }).save();
                 
-                  await new DatabasePayers({ userName, personalized, email, code, blood, arlegies }).save();
-
-
-                  res.send('ok');
-
+                return res.send('ok');
+            } else {
+                console.log('Pagamento não aprovado:', data.status);
+                return res.send('Pagamento não aprovado');
             }
-                
+        } else {
+            console.error('Erro ao buscar pagamento:', response.status);
+            return res.status(500).send('Erro ao verificar pagamento');
         }
 
-    });
-
+    } catch (error) {
+        console.error('Erro no webhook:', error);
+        return res.status(500).send('Erro interno');
+    }
+});
 
 module.exports = routes;
