@@ -48,7 +48,6 @@ app.post("/webhook/mercadopago", async (req, res) => {
         await DatabasePayers.create({
             userName: data.metadata.user_name,
             personalized: data.metadata.personalized,
-            email: data.metadata.email,
             code: data.metadata.code,
             blood: data.metadata.blood,
             arlegies: data.metadata.arlegies,
