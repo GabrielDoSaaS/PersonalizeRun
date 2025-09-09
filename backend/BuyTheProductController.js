@@ -29,9 +29,7 @@ const BuyTheProductController = async (req, res) => {
         const encodedBlood = encodeURIComponent(blood);
         const encodedCode = encodeURIComponent(code);
 
-        // Construir a URL de notificação corretamente
-        const notificationUrl = `https://pb-0t3x.onrender.com/webhook?userName=${encodedUserName}&personalized=${encodedPersonalized}&email=${encodedEmail}&code=${encodedCode}&blood=${encodedBlood}&arlegies=${encodedArlegies}`;
-
+        // Construir a URL de notificação corretame
         // Configuração do corpo da requisição com METADADOS
         const body = {
             items: [
@@ -43,7 +41,6 @@ const BuyTheProductController = async (req, res) => {
                     unit_price: value,
                 },
             ],
-            notification_url: notificationUrl,
             payment_methods: {
                 excluded_payment_types: [
                     { id: 'ticket' } // Exclui apenas boleto
