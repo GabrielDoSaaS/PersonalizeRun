@@ -14,7 +14,7 @@ const { MercadoPagoConfig, Payment } = require('mercadopago');
 
 // Configuração
 const client = new MercadoPagoConfig({ 
-  accessToken: 'APP_USR-7932112160870899-090608-086afe9324d53debb58635846b322-1840600103' 
+  accessToken: 'APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103' 
 });
 
 // Crie a instância do Payment
