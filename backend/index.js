@@ -55,6 +55,8 @@ app.post("/webhook/mercadopago", async (req, res) => {
         });
 
       console.log("Pagamento aprovado!");
+
+      res.sendStatus(200);
     }
 
   } catch (err) {
