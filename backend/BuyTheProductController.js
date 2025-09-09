@@ -42,7 +42,14 @@ const BuyTheProductController = async (req, res) => {
                     unit_price: value,
                 },
             ],
-            notification_url: notificationUrl,
+                metadata: {
+        userName: "Nome do usuário",
+        personalized: "Personalizado",
+        email: "email@exemplo.com",
+        code: "12345",
+        blood: "O+",
+        allergies: "Nenhuma"
+    },
             payment_methods: {
                 excluded_payment_types: [
                     { id: 'ticket' } // Exclui apenas boleto
