@@ -1,7 +1,7 @@
 const DatabasePayers = require('./DatabasePayers');
 const axios = require('axios');
 const Cupom = require('./Cupom');
-const axios = require('axios');
+
 
 const BuyTheProductController = async (req, res) => {
     const { userName, email, product, coupon } = req.body;
