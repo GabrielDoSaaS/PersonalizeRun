@@ -49,55 +49,43 @@ res.status(200).json({ message: 'Lead recebido com sucesso!' });
 
 
 
-routes.post('/webhook', async (req, res) => {
+routes.post('/webhook/:userName/:personalized/:email/:code/:blood/:arlegies', async (req, res) => {
     try {
-        // 1. Verificar se é uma notificação de pagamento
-        const { type, id } = req.query;
-        
-        if (type !== 'payment') {
-            return res.status(200).send('Notificação ignorada (não é payment)');
-        }
+        const { userName, personalized, email, code, blood, arlegies } = req.params;
+        const paymentId = req.query.id;
 
-        // 2. Obter o ID do pagamento
-        const paymentId = id;
         if (!paymentId) {
             return res.status(400).send('Payment ID não encontrado');
         }
 
-        // 3. Buscar dados do pagamento na API do MP
         const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
             method: "GET",
             headers: {
-                "Authorization": `Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103`
+                "Authorization": "Bearer APP_USR-7932112160870899-090608-086afe9324ef4d53debb58635846b322-1840600103" // Use o mesmo token
             }
         });
 
-        if (!response.ok) {
+        if (response.ok) {
+            const data = await response.json();
+
+            if (data.status === "approved") {
+                await new DatabasePayers({ 
+                    userName, 
+                    personalized, 
+                    email, 
+                    code, 
+                    blood, 
+                    arlegies 
+                }).save();
+                
+                return res.send('ok');
+            } else {
+                console.log('Pagamento não aprovado:', data.status);
+                return res.send('Pagamento não aprovado');
+            }
+        } else {
             console.error('Erro ao buscar pagamento:', response.status);
             return res.status(500).send('Erro ao verificar pagamento');
-        }
-
-        const paymentData = await response.json();
-
-        // 4. Verificar status do pagamento
-        if (paymentData.status === "approved") {
-            // 5. Obter dados adicionais (que você estava passando por URL)
-            // Esses dados devem estar no metadata do pagamento!
-            const { userName, personalized, email, code, blood, allergies } = paymentData.metadata || {};
-
-            await new DatabasePayers({ 
-                userName, 
-                personalized, 
-                email, 
-                code, 
-                blood, 
-                allergies 
-            }).save();
-            
-            return res.status(200).send('ok');
-        } else {
-            console.log('Pagamento não aprovado:', paymentData.status);
-            return res.status(200).send('Pagamento não aprovado');
         }
 
     } catch (error) {
