@@ -19,6 +19,11 @@ const AdmPainel = () => {
   const [couponDiscount, setCouponDiscount] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Novos estados para o filtro e as abas
+  const [activeTab, setActiveTab] = useState("all");
+  const [payersOnOffer, setPayersOnOffer] = useState([]);
+  const [payersAfterOffer, setPayersAfterOffer] = useState([]);
+
   const handleLogin = (e) => {
     e.preventDefault();
     setLoginError("");
@@ -35,7 +40,8 @@ const AdmPainel = () => {
     const fetchPayers = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/list-payers`);
-        setPayers(response.data);
+        const allPayers = response.data;
+        setPayers(allPayers);
       } catch (error) {
         console.error("Houve um erro ao buscar os compradores!", error);
       } finally {
@@ -43,7 +49,15 @@ const AdmPainel = () => {
       }
     };
     fetchPayers();
-  }, [isAuthenticated]); // Roda o useEffect apenas quando o estado de autenticação muda
+  }, [isAuthenticated]);
+
+  // Novo useEffect para filtrar os pagadores quando a lista principal mudar
+  useEffect(() => {
+    const onOffer = payers.filter(payer => !payer.afterOffer);
+    const afterOffer = payers.filter(payer => payer.afterOffer);
+    setPayersOnOffer(onOffer);
+    setPayersAfterOffer(afterOffer);
+  }, [payers]);
 
   const handleCreateCoupon = async (e) => {
     e.preventDefault();
@@ -103,7 +117,8 @@ const AdmPainel = () => {
     document.body.removeChild(link);
   };
 
-  const filteredPayers = payers.filter(
+  // Filtra a lista de exibição com base na aba ativa e no termo de busca
+  const filteredPayers = (activeTab === "all" ? payers : activeTab === "onOffer" ? payersOnOffer : payersAfterOffer).filter(
     (payer) =>
       payer.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       payer.code.includes(searchTerm)
@@ -135,11 +150,13 @@ const AdmPainel = () => {
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
-                className={inputClass}
+                autoComplete="email"
+                required
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                required
+                className={inputClass}
               />
             </div>
             <div>
@@ -148,20 +165,24 @@ const AdmPainel = () => {
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
-                className={inputClass}
+                autoComplete="current-password"
+                required
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
-                required
+                className={inputClass}
               />
             </div>
             {loginError && (
-              <p className="text-sm text-red-500 text-center">{loginError}</p>
+              <p className="text-sm font-medium text-red-600 text-center">
+                {loginError}
+              </p>
             )}
             <div>
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition duration-300"
               >
                 Entrar
               </button>
@@ -172,152 +193,182 @@ const AdmPainel = () => {
     );
   }
 
-  // Renderiza o painel principal se o usuário estiver autenticado
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white p-4 md:p-8 font-sans">
-      <div className="mx-auto max-w-7xl">
-        <header className="mb-8 md:mb-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">
-              Painel Administrativo
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Gerencie compradores e crie cupons de desconto.
-            </p>
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <header className="bg-orange-600 text-white rounded-2xl shadow-lg p-6 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <h1 className="text-3xl font-bold">Painel de Administração</h1>
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Buscar por nome ou código..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full md:w-64 pl-10 pr-4 py-2 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition"
+              />
+            </div>
+            <button
+              onClick={() => setIsCouponModalOpen(true)}
+              className="flex items-center space-x-2 bg-white text-orange-600 font-bold py-2 px-4 rounded-xl shadow-lg hover:bg-gray-100 transition duration-300"
+            >
+              <FaPlus />
+              <span>Criar Cupom</span>
+            </button>
+            <button
+              onClick={handleExportToCSV}
+              className="flex items-center space-x-2 bg-white text-orange-600 font-bold py-2 px-4 rounded-xl shadow-lg hover:bg-gray-100 transition duration-300"
+            >
+              <FaFileExcel />
+              <span>Exportar</span>
+            </button>
           </div>
-          <button
-            onClick={() => setIsCouponModalOpen(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition-transform duration-200 hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
-          >
-           <FaPlus />
-                Criar Cupom
-          </button>
         </header>
 
-        {/* Seção de listagem de compradores */}
-        <section className={cardClass}>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-              Listagem de Compradores ({payers.length})
-            </h2>
-            <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-              <div className="relative w-full md:w-auto">
-                <input
-                  type="text"
-                  placeholder="Buscar por nome ou código..."
-                  className={`pl-10 pr-4 py-2 ${inputClass}`}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              </div>
-              <button
-                onClick={handleExportToCSV}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-bold transition-transform duration-200 hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 w-full md:w-auto justify-center"
-              >
-                <FaFileExcel />
-                Exportar Planilha
-              </button>
-            </div>
-          </div>
+        {/* Tabs de filtro */}
+        <div className="flex justify-center border-b border-gray-200">
+          <button
+            className={`px-4 py-2 -mb-px font-semibold text-lg transition-colors duration-300 ${
+              activeTab === "all"
+                ? "border-b-2 border-orange-500 text-orange-600"
+                : "border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setActiveTab("all")}
+          >
+            Todos ({payers.length})
+          </button>
+          <button
+            className={`px-4 py-2 -mb-px font-semibold text-lg transition-colors duration-300 ${
+              activeTab === "onOffer"
+                ? "border-b-2 border-orange-500 text-orange-600"
+                : "border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setActiveTab("onOffer")}
+          >
+            Compraram na Oferta ({payersOnOffer.length})
+          </button>
+          <button
+            className={`px-4 py-2 -mb-px font-semibold text-lg transition-colors duration-300 ${
+              activeTab === "afterOffer"
+                ? "border-b-2 border-orange-500 text-orange-600"
+                : "border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setActiveTab("afterOffer")}
+          >
+            Compraram após Oferta ({payersAfterOffer.length})
+          </button>
+        </div>
 
-          <div className="overflow-x-auto max-h-[600px] lg:max-h-[800px] overflow-y-auto">
-            {loadingPayers ? (
-              <p className="text-center text-gray-500 py-8">Carregando compradores...</p>
-            ) : filteredPayers.length > 0 ? (
-              <table className="w-full text-left border-collapse">
-                <thead className="sticky top-0 bg-white">
-                  <tr className="border-b border-gray-200 text-sm font-semibold text-gray-700">
-                    <th className="py-3 px-5">Nome</th>
-                    <th className="py-3 px-5">Inscrição</th>
-                    <th className="py-3 px-5 hidden md:table-cell">Personalização</th>
-                    <th className="py-3 px-5 hidden lg:table-cell">Tipo Sanguíneo</th>
-                    <th className="py-3 px-5 hidden lg:table-cell">Alergias</th>
+        <div className={cardClass}>
+          <h3 className="text-xl font-bold mb-4 text-orange-600 flex items-center gap-2">
+            <FaTicketAlt /> Lista de Compradores
+          </h3>
+          {loadingPayers ? (
+            <p className="text-center text-gray-500">
+              Carregando compradores...
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                    >
+                      Nome
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                    >
+                      Código
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                    >
+                      Tipo Sanguíneo
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                    >
+                      Alergias
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                    >
+                      Status
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
-                  {filteredPayers.map((payer, index) => (
-                    <tr
-                      key={payer._id || index}
-                      className={`hover:bg-gray-50 transition-colors ${
-                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                      }`}
-                    >
-                      <td className="py-4 px-5 text-gray-800 font-medium">
-                        {payer.userName}
-                      </td>
-                      <td className="py-4 px-5 text-gray-600">{payer.code}</td>
-                      <td className="py-4 px-5 text-gray-600 hidden md:table-cell">
-                        {payer.personalized || "N/A"}
-                      </td>
-                      <td className="py-4 px-5 text-gray-600 hidden lg:table-cell">
-                        {payer.blood || "N/A"}
-                      </td>
-                      <td className="py-4 px-5 text-gray-600 hidden lg:table-cell">
-                        {payer.arlegies || "N/A"}
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredPayers.length > 0 ? (
+                    filteredPayers.map((payer, index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {payer.userName}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {payer.code}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {payer.blood || "Nenhuma"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {payer.arlegies || "Nenhuma"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {payer.afterOffer ? "Comprou após a oferta" : "Comprou na oferta"}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                        Nenhum comprador encontrado.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
-            ) : (
-              <p className="text-center text-gray-500 py-8">
-                Nenhum comprador encontrado.
-              </p>
-            )}
-          </div>
-        </section>
-      </div>
+            </div>
+          )}
+        </div>
 
-      {/* Modal de Cupom */}
-      {isCouponModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-        >
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-            onClick={() => setIsCouponModalOpen(false)}
-          />
-          <div className="relative z-10 w-full max-w-md">
-            <div className="bg-white rounded-2xl shadow-2xl border border-orange-100">
-              <div className="flex items-center justify-between px-6 py-4 border-b">
-                <h3 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <FaTicketAlt className="text-orange-500" />
-                  Criar novo cupom
+        {/* Modal de Criação de Cupom */}
+        {isCouponModalOpen && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center">
+            <div className="relative p-8 bg-white w-96 rounded-2xl shadow-xl border border-orange-100">
+              <div className="text-center">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  Criar Novo Cupom
                 </h3>
-                <button
-                  onClick={() => setIsCouponModalOpen(false)}
-                  className="rounded-xl p-2 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
-                  aria-label=" Fechar modal"
-                >
-                  ✕
-                </button>
               </div>
-              <form onSubmit={handleCreateCoupon} className="px-6 py-6 space-y-5">
-                <div>
+              <form onSubmit={handleCreateCoupon}>
+                <div className="mb-4">
                   <label htmlFor="couponCode" className={labelClass}>
                     Código do Cupom
                   </label>
                   <input
                     id="couponCode"
                     type="text"
-                    className={inputClass}
                     value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    className={inputClass}
                     required
                   />
                 </div>
-                <div>
+                <div className="mb-6">
                   <label htmlFor="couponDiscount" className={labelClass}>
-                    Porcentagem de Desconto (%)
+                    Desconto (%)
                   </label>
                   <input
                     id="couponDiscount"
                     type="number"
-                    className={inputClass}
                     value={couponDiscount}
                     onChange={(e) => setCouponDiscount(e.target.value)}
                     min="1"
@@ -329,27 +380,23 @@ const AdmPainel = () => {
                   <button
                     type="button"
                     onClick={() => setIsCouponModalOpen(false)}
-                    className="px-5 py-2.5 rounded-xl border font-semibold text-gray-700 hover:bg-gray-50 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                    className="px-5 py-2.5 rounded-xl border font-semibold text-gray-700 hover:bg-gray-50 transition duration-300"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                    className="px-5 py-2.5 rounded-xl font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 transition duration-300"
                   >
-                    {loading ? (
-                      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    ) : (
-                      "Criar Cupom"
-                    )}
+                    {loading ? "Criando..." : "Criar"}
                   </button>
                 </div>
               </form>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
