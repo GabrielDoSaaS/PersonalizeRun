@@ -19,7 +19,7 @@ const BuyTheProductController = async (req, res) => {
 
     try {
         const porcent = cupomFound ? cupomFound.porcent : 0;
-        const value = 25 - (25 * porcent / 100);
+        const value = 26.25
 
         // Codificar os parâmetros para URL
         const encodedUserName = encodeURIComponent(userName);
