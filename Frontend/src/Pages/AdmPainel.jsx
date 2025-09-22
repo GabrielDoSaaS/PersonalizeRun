@@ -94,6 +94,7 @@ const AdmPainel = () => {
       "Identificador Personalizado",
       "Tipo Sanguineo",
       "Alergias Conhecidas",
+      "Status da Compra",
     ].join(delimiter);
 
     const csvContent = payers
@@ -104,6 +105,7 @@ const AdmPainel = () => {
           `"${payer.personalized || "Nenhuma"}"`,
           `"${payer.blood || "Nenhuma"}"`,
           `"${payer.arlegies || "Nenhuma"}"`,
+          `"${payer.afterOffer ? "Comprou após a oferta" : "Comprou na oferta"}"`,
         ].join(delimiter)
       )
       .join("\r\n");
@@ -304,6 +306,12 @@ const AdmPainel = () => {
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
                     >
+                      Personalização Desejada
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                    >
                       Status
                     </th>
                   </tr>
@@ -325,13 +333,16 @@ const AdmPainel = () => {
                           {payer.arlegies || "Nenhuma"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {payer.personalized || "Nenhuma"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {payer.afterOffer ? "Comprou após a oferta" : "Comprou na oferta"}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                      <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
                         Nenhum comprador encontrado.
                       </td>
                     </tr>
