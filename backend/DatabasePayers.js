@@ -7,6 +7,7 @@ const databasePayersSchema = new mongoose.Schema({
     blood: { type: String
      },
     arlegies: { type: String },
+    afterOffer: { type: Boolean }
 });
 
 module.exports = mongoose.model('DatabasePayers', databasePayersSchema);

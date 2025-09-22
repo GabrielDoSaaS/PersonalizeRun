@@ -72,7 +72,8 @@ routes.post('/webhook', async (req, res) => {
                 email, 
                 code, 
                 blood, 
-                allergies 
+                allergies
+                true
             }).save();
         }
         
